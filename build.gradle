@@ -18,3 +18,18 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
+
+tasks.named('bootJar').configure {
+  it.finalizedBy('copyJar')
+}
+
+task 'copyJar'(type: Copy, group: 'build', description: 'copies bootJar for build docker image') {
+  from tasks.named('bootJar')
+  into "$buildDir/libs"
+  rename "-${project.version}", ''
+}
+
+task buildDockerImage(type: Exec, group: 'build', description: 'build docker image', dependsOn: 'copyJar') {
+  workingDir(projectDir)
+  commandLine 'docker', 'build', '-t', "javap-server:${project.version}", '.'
+}
