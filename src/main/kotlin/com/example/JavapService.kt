@@ -35,5 +35,5 @@ class JavapService {
     }
   }
 
-  private fun Writer.asPrintWriter(): PrintWriter = java.io.PrintWriter(this)
+  private fun Writer.asPrintWriter(): PrintWriter = PrintWriter(this)
 }
