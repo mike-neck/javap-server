@@ -24,6 +24,9 @@ class JavapService {
       0 -> {
         logger.info("javap for {} is succeeded", javaFile)
         true to out.toString()
+          .lineSequence()
+          .map { if (it.contains(javaFile.toString())) it.replace(javaFile.toString(), javaFile.fileName.toString()) else it }
+          .joinToString("\n")
       }
       else -> {
         logger.info("javap for {} is failed due to stdout={}, stderr={}", javaFile, out.toString(), err.toString())
