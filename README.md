@@ -12,7 +12,17 @@ Run Spring Boot Application.
 ./gradlew bootRun
 ```
 
-Send your java code
+URL Specification
+---
+
+`javap` service is available at the URL as follows.
+
+- The root path is `/javap` .
+- The remaining path can be created from Java code
+    - First, get gzip of the Java code
+    - Second, get the Base64 representation of gzipped bytes, and then replace all `'/'` with `'_'`, `'+'` with `'-'`. 
+
+Sending code example.
 
 ```shell
 cat <<EOF | gzip | base64 | tr '/' '_' | tr '+' '-' | awk '{print "http://localhost:8080/javap/"$1}' | xargs curl
