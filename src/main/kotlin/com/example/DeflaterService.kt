@@ -30,7 +30,7 @@ class DeflaterService {
           true -> it.substring(0, it.indexOf('{'))
           false -> it
         } }
-        .firstOrNull() ?: throw IllegalArgumentException("javaCode has no class")
+        .firstOrNull() ?: throw IllegalArgumentException("javaCode has no class\n${javaCode}")
 
       StringJavaObject(javaCode, javaName)
 

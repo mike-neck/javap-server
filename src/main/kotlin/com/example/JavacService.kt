@@ -11,7 +11,7 @@ class JavacService(
 
   private val logger = logger<JavacService>()
 
-  fun compileToBytes(javaObject: JavaFileObject): Pair<List<CompileError>, Pair<String, ByteArray>?> {
+  fun compileToBytes(javaObject: JavaFileObject): Pair<List<CompileError>, List<Bytecode>> {
     val diagnosticListener = JavacDiagnosticListener()
     val standardFileManager = javaCompiler.getStandardFileManager(diagnosticListener, Locale.ENGLISH, Charsets.UTF_8)
     val fileManager = DelegateFileManager(standardFileManager)
@@ -19,17 +19,17 @@ class JavacService(
     val task = javaCompiler.getTask(writer, fileManager, diagnosticListener, emptyList(), emptyList(), listOf(javaObject))
     return when (task.call()) {
       true -> {
-        val klass = fileManager.list.firstOrNull()
-        logger.info("compiling ${javaObject.name} is succeeded, generated ${klass?.name}")
-        when (klass) {
-          null -> throw IllegalStateException("unknown states: compiling ${javaObject.name} is succeeded but no bytecode is generated")
-          else -> return emptyList<CompileError>() to (klass.name.replace("/", "") to klass.bytes.toByteArray())
+        logger.info("compiling ${javaObject.name} is succeeded, generated ${fileManager.list.joinToString(",") { it.name } }")
+        val klasses = fileManager.list
+        when {
+          klasses.isEmpty() -> throw IllegalStateException("unknown states: compiling ${javaObject.name} is succeeded but no bytecode is generated")
+          else -> return emptyList<CompileError>() to klasses.map(::Bytecode)
         }
       }
       false -> {
         val diagnostics = diagnosticListener.diagnostics()
         logger.info("compiling ${javaObject.name} is failed, cause {}", diagnostics)
-        diagnostics to null
+        diagnostics to emptyList()
       }
     }
   }

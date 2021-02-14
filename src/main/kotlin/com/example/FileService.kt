@@ -10,6 +10,17 @@ class FileService {
 
   private val logger = logger<FileService>()
 
+  fun createTemporaryFiles(fileContents: Collection<Bytecode>): List<Path> {
+    val paths = fileContents.mapNotNull { createTemporaryFile(it.name to it.bytecode) }
+    return when {
+      fileContents.size != paths.size -> {
+        logger.info("createTemporaryFiles failed to create some files, targets={}, created={}", fileContents, paths)
+        emptyList()
+      }
+      else -> paths
+    }
+  }
+
   fun createTemporaryFile(fileContents: Pair<String, ByteArray>): Path? {
     return try {
       val javaFile = Files.createTempFile(fileContents.first, ".class")
